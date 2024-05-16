@@ -1,6 +1,6 @@
 CFLAGS := -g -Wall -Wextra -Wno-unused-parameter
 
-SOURCES := main.c
+SOURCES := server.c
 BINARY := server
 
 
@@ -13,7 +13,7 @@ clean:
 test: server
 	./server
 
-server: main.c
+server: $(SOURCES)
 	gcc $(CFLAGS) $< -o $@
 
 
