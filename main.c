@@ -4,11 +4,10 @@
 #include <string.h>
 #include <stdbool.h>
 #include <signal.h>
-#include <pthread.h>
-
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <fcntl.h>
 
 #define PORT 7070
 #define BUFFER_SIZE 64
@@ -39,40 +38,22 @@ void mutate(char * str) {
     }
 }
 
-void* handle_client(void *arg) {
-    int* int_arg = (int*) arg;
-    int new_socket_fd = *int_arg;
-    free(arg);
-    char buffer[BUFFER_SIZE];
-    int n_bytes;
 
-    while (true) { 
-        memset(buffer, 0, BUFFER_SIZE);
-        n_bytes = read(new_socket_fd, buffer, BUFFER_SIZE-1);
-        if ( n_bytes < 0 ) {
-            perror("Failed to read from socket");
-            return NULL;
-        } else if ( n_bytes == 0 ) {
-            printf("CONNECTION CLOSED\n");
-            return NULL;
-        } else {
-            // happy path
-            printf("RECEIVED: %s\n", buffer);
-            mutate(buffer);
-            n_bytes = write(new_socket_fd, buffer, strlen(buffer));
-            if ( n_bytes < 0 ) {
-                perror("Failed to write to socket");
-                close(new_socket_fd);
-                return NULL;
-            }
-            printf("SENT: %s\n", buffer);
-
-        }
-    }
-
-    // unreachable
-    return NULL;
+void set_non_blocking(int fd) {
+    int flags = fcntl(fd, F_GETFL, 0);
+    if ( flags == -1 ) die("fcntl get failed");
+    flags |= O_NONBLOCK;
+    if ( fcntl(fd, F_SETFL, flags) == -1 ) die("fcntl set failed");
 }
+
+
+void set_reuse_addr(int fd) {
+    int optval = 1; // Enable the option
+    if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) < 0) {
+        die("setsockopt(SO_REUSEADDR) failed");
+    }
+}
+
 
 void start_server() {
     socklen_t client_address_length;
@@ -80,6 +61,8 @@ void start_server() {
 
     socket_fd = socket(AF_INET, SOCK_STREAM, 0);
     if ( socket_fd < 0 ) die("Unable to open socket.");
+    set_non_blocking(socket_fd);
+    set_reuse_addr(socket_fd);
 
     // initialize server_address
     memset((char *) &server_address, 0, sizeof(server_address));
@@ -99,44 +82,71 @@ void start_server() {
     client_address_length = sizeof(client_address);
     printf("LISTENING ON PORT %d\n", PORT);
 
+    fd_set read_fds, temp_fds;
+    FD_ZERO(&read_fds);
+    FD_SET(socket_fd, &read_fds);
+
+    char buffer[BUFFER_SIZE];
+    int max_fd = socket_fd;
+
     while ( true ) {
-        int *new_socket_fd = malloc(sizeof(int));
-        // accept
-        *new_socket_fd = accept(
-            socket_fd,
-            (struct sockaddr *) &client_address, 
-            &client_address_length);
-        if ( new_socket_fd < 0 ) {
-            free(new_socket_fd);
-            die("Unable to accept connection.");
+        temp_fds = read_fds;
+        status = select(max_fd+1, &temp_fds, NULL, NULL, NULL);
+        if ( status < 0 ) die("select error");
 
-        }
-        printf("CONNECTED\n");
+        for ( int i=0; i <= max_fd; i++ ) {
+            if ( FD_ISSET(i, &temp_fds) ) {
+                if ( i == socket_fd ) {
+                    int new_socket = accept(
+                        socket_fd, 
+                        (struct sockaddr*) &client_address, 
+                        &client_address_length
+                    );
+                    if ( new_socket < 0 ) die("accept error");
+                    set_non_blocking(new_socket);
+                    FD_SET(new_socket, &read_fds);
+                    if ( new_socket > max_fd ) max_fd = new_socket;
+                    printf("CONNECTED %d\n", i);
+                } else {
+                    memset(buffer, 0, BUFFER_SIZE);
+                    int n_bytes = read(i, buffer, BUFFER_SIZE-1);
+                    if ( n_bytes < 0 ) {
+                        perror("Failed to read from socket");
+                        close(i);
+                        FD_CLR(i, &read_fds);
+                    } else if ( n_bytes == 0 ) {
+                        printf("CONNECTION %d CLOSED\n", i);
+                        close(i);
+                        FD_CLR(i, &read_fds);
+                    } else {
+                        // happy path
+                        printf("CONNECTION %d RECEIVED: %s\n", i, buffer);
+                        mutate(buffer);
+                        n_bytes = write(i, buffer, strlen(buffer));
+                        if ( n_bytes < 0 ) {
+                            perror("Failed to write to socket");
+                            close(i);
+                        }
+                        printf("CONNECTION %d SENT: %s\n", i, buffer);
 
-        // spawn a new thread to handle the new connection
-        pthread_t thread_id;
-        int error = pthread_create(&thread_id, NULL, handle_client, new_socket_fd);
-        if ( error ) {
-            close(*new_socket_fd);
-            free(new_socket_fd);
-            die("Failed to create thread.");
+                    }
+                }
+            }
         }
-        pthread_detach(thread_id);
     }
 
-    close(socket_fd);
-    die("done serving");
 }
 
 void init_signal_handlers() {
     struct sigaction sa;
 
-    // SIG INT
+    // SIGINT
     memset(&sa, 0, sizeof(sa));
     sa.sa_handler = sigint_handler;
     sigaction(SIGINT, &sa, NULL);
 
-    // SIGTERM - no handler, let it die.
+    // SIGTERM 
+    // no handler, let it die.
 }
 
 int main(int argc, char** argv) {
