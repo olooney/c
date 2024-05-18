@@ -1,19 +1,27 @@
+CC := gcc
 CFLAGS := -g -Wall -Wextra -Wno-unused-parameter
 
-SOURCES := server.c
-BINARY := server
+all: main server
 
+include dependencies.makefile
 
-.PHONEY: all clean test
-all: server
+.PHONY: all clean test dep
 
 clean:
-	@rm -rf $(BINARY)
+	@rm -f main server *.o dependencies.makefile
+	gcc -M *.c > dependencies.makefile
+
+dep:
+	gcc -M *.c > dependencies.makefile
 
 test: server
 	./server
 
-server: $(SOURCES)
-	gcc $(CFLAGS) $< -o $@
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
+server: server.o
+	$(CC) $(CFLAGS) $< -o $@
 
+main: main.o rabin_karp.o
+	$(CC) $(CFLAGS) $^ -o $@
