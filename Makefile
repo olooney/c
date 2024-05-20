@@ -25,3 +25,8 @@ server: server.o
 
 main: main.o rabin_karp.o
 	$(CC) $(CFLAGS) $^ -o $@
+
+
+test_list: test_list.o list.o
+	$(CC) $(CFLAGS) $^ -o $@
+	
