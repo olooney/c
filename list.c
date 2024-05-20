@@ -11,25 +11,40 @@ List* new_list_n(const char* value, size_t length) {
     List* list = (List*) malloc(sizeof(List));
     list->value = (char*) malloc(length + 1);
     strncpy(list->value, value, length);
+    list->value[length] = '\0';
     list->next = NULL;
     return list;
 }
 
 void free_list(List* list) {
-    if (list) {
-        free_list(list->next);
-        free(list->value);
-        free(list);
+    while ( list != NULL ) {
+        List *temp = list;
+        list = list->next;
+        free(temp->value);
+        free(temp);
     }
 }
 
-void list_append(List* list, const char* value) {
-    while (list->next) list = list->next;
+List* list_append(List* list, const char* value) {
+    if ( list == NULL ) {
+        return new_list(value);
+    }
+
+    while ( list->next != NULL ) {
+        list = list->next;
+    }
     list->next = new_list(value);
+    return list;
 }
 
-void list_append_n(List* list, const char* value, size_t length) {
-    while (list->next) list = list->next;
+List* list_append_n(List* list, const char* value, size_t length) {
+    if ( list == NULL ) {
+        return new_list_n(value, length);
+    }
+
+    while ( list->next != NULL ) {
+        list = list->next;
+    }
     list->next = new_list_n(value, length);
 }
 
@@ -50,6 +65,18 @@ char* list_get(List* list, int index) {
     }
 
     return list->value;
+}
+
+int list_length(List* list) {
+    if ( list == NULL ) return 0;
+
+    int length = 1;
+    while ( list->next != NULL ) {
+        length++;
+        list = list->next;
+    }
+
+    return length;
 }
 
 
