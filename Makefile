@@ -5,29 +5,37 @@ all: main server
 
 include dependencies.makefile
 
-.PHONY: all clean test dep
+.PHONY: all clean test dep serve
 
 clean:
-	@rm -f main server *.o dependencies.makefile
+	rm -f main server *.o
+	rm -f dependencies.makefile
 	gcc -M *.c > dependencies.makefile
 
 dep:
 	gcc -M *.c > dependencies.makefile
 
-test: server
-	./server
-
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
+
+%: %.o
+	$(CC) $(CFLAGS) $^ -o $@
 
 server: server.o
 	$(CC) $(CFLAGS) $< -o $@
 
 main: main.o rabin_karp.o
-	$(CC) $(CFLAGS) $^ -o $@
-
 
 test_list: test_list.o list.o
-	$(CC) $(CFLAGS) $^ -o $@
 	
 test_dict: test_dict.o dict.o
+
+test: test_list test_dict
+	rm -f test_results.txt
+	@./test_list >> test_results.txt
+	@./test_dict >> test_results.txt
+	@echo "Pass Count:" $$(grep '^PASS:' test_results.txt | wc -l)
+	@echo "Fail Count:" $$(grep '^FAIL:' test_results.txt | wc -l)
+
+serve: ./server
+	./server
