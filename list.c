@@ -46,6 +46,7 @@ List* list_append_n(List* list, const char* value, size_t length) {
         list = list->next;
     }
     list->next = new_list_n(value, length);
+    return list;
 }
 
 // pass index -1 as a special case to get the last value.
