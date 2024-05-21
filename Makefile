@@ -30,3 +30,4 @@ main: main.o rabin_karp.o
 test_list: test_list.o list.o
 	$(CC) $(CFLAGS) $^ -o $@
 	
+test_dict: test_dict.o dict.o

@@ -6,9 +6,9 @@
 void test_list() {
     // new
     printf("\nTest new_list()\n");
-    List* test_list = new_list("First");
-    if (test_list != NULL && strcmp(test_list->value, "First") == 0) {
-        printf("PASS: List created with initial value '%s'\n", test_list->value);
+    List* list = new_list("First");
+    if (list != NULL && strcmp(list->value, "First") == 0) {
+        printf("PASS: List created with initial value '%s'\n", list->value);
     } else {
         printf("FAIL: List creation failed\n");
     }
@@ -17,7 +17,7 @@ void test_list() {
     printf("\nTest list_length()\n");
     if ( 
         list_length(NULL) == 0 &&
-        list_length(test_list) == 1
+        list_length(list) == 1
     ) {
         printf("PASS: list_length() for 0 or 1\n");
     } else {
@@ -27,13 +27,13 @@ void test_list() {
 
     // append 
     printf("\nTest list_append()\n");
-    list_append(test_list, "Second");
-    list_append(test_list, "Third");
+    list_append(list, "Second");
+    list_append(list, "Third");
     if (
-        test_list->next != NULL && 
-        strcmp(test_list->next->value, "Second") == 0 &&
-        test_list->next->next != NULL && 
-        strcmp(test_list->next->next->value, "Third") == 0
+        list->next != NULL && 
+        strcmp(list->next->value, "Second") == 0 &&
+        list->next->next != NULL && 
+        strcmp(list->next->next->value, "Third") == 0
     ) {
         printf("PASS: Items appended correctly\n");
     } else {
@@ -43,20 +43,20 @@ void test_list() {
     // append n
     printf("\nTest list_append_n()...\n");
     const char* test_string = "Four Five Six";
-    list_append_n(test_list, test_string, 4);
-    list_append_n(test_list, test_string + 5, 4);
-    list_append_n(test_list, test_string + 10, 100);
+    list_append_n(list, test_string, 4);
+    list_append_n(list, test_string + 5, 4);
+    list_append_n(list, test_string + 10, 100);
     const char* answers[6] = { "First", "Second", "Third", "Four", "Five", "Six" };
-    if ( list_length(test_list) == 6 ) {
+    if ( list_length(list) == 6 ) {
         printf("PASS: string slices appended correctly\n");
     } else {
-        printf("FAIL: List length %d != 6\n", list_length(test_list));
+        printf("FAIL: List length %d != 6\n", list_length(list));
     }
 
 
     // get
     for ( int i=0; i < 6; i++ ) {
-        char* ith_value = list_get(test_list, i);
+        char* ith_value = list_get(list, i);
         if ( strcmp(ith_value, answers[i]) == 0 ) {
             printf("PASS: got item %d correctly\n", i);
         } else {
@@ -66,7 +66,7 @@ void test_list() {
 
     // get last
     printf("\nTest list_get() last item...\n");
-    char* last_value = list_get(test_list, -1);
+    char* last_value = list_get(list, -1);
     if ( strcmp(last_value, "Six") == 0 ) {
         printf("PASS: got last item correctly\n");
     } else {
@@ -75,7 +75,7 @@ void test_list() {
 
     // invalid get
     printf("\nTest list_get() out-of-range...\n");
-    char* bad_value = list_get(test_list, 99);
+    char* bad_value = list_get(list, 99);
     if ( bad_value == NULL ) {
         printf("PASS: getting out-of-range index returns NULL\n");
     } else {
@@ -86,12 +86,12 @@ void test_list() {
     printf("\nTest fprint_list()...\n");
     printf("EXPECT: First, Second, Third, Four, Five, Six\n");
     printf("ACTUAL: ");
-    fprint_list(stdout, test_list, ", ");
+    fprint_list(stdout, list, ", ");
     printf("\n");
 
     // free
     printf("\nTest free_list()...\n");
-    free_list(test_list);
+    free_list(list);
     printf("PASS: List freed.\n");
 }
 
