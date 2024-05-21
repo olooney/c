@@ -15,6 +15,8 @@ then in theory it will be faster because it's O(N+M)
 2. Word Boundary Option
 3. Multiple Patterns
 4. Streaming
+5. Write PASS/FAIL tests.
+6. local test file.
 
 List
 ----
