@@ -7,7 +7,6 @@
 void rabin_karp(const char* text, const char* pattern) {
     const char* pc; // pointer-to-character
     uint64_t base = 256;
-    // uint64_t prime_modulus = (1ULL << 29) -1;
     uint64_t prime_modulus = (1ULL << 11) -1;
     size_t text_length = strlen(text);
 
@@ -54,15 +53,16 @@ void rabin_karp(const char* text, const char* pattern) {
         }
 
         // update the rolling hash
-        uint64_t negative = (text[i] * inverse_power) % prime_modulus;
-        text_hash = (text_hash + prime_modulus - negative) % prime_modulus;
-        text_hash = (text_hash * base + text[i+pattern_length]) % prime_modulus;
-
+        //
         // Note: this will compute the rolling hash of the '\0' at the end of
         // the string.  This is perfectly safe as the string is guarenteed to
         // have a null terminator and this hash value is never used. Doing so
         // allows us avoid an extra compare/branch inside the loop.
-        //
+        uint64_t negative = (text[i] * inverse_power) % prime_modulus;
+        text_hash = (text_hash + prime_modulus - negative) % prime_modulus;
+        text_hash = (text_hash * base + text[i+pattern_length]) % prime_modulus;
+
+        // count lines
         if ( text[i + pattern_length] == '\n' ) {
             line_number++;
             line_start = text + i + pattern_length + 1;
