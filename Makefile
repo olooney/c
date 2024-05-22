@@ -1,5 +1,5 @@
 CC := gcc
-CFLAGS := -g -Wall -Wextra -Wno-unused-parameter
+CFLAGS := -g -O3 -Wall -Wextra -Wno-unused-parameter -Wno-stringop-truncation
 
 all: test
 
