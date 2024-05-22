@@ -45,8 +45,7 @@ static inline uint64_t poly_hash_roll(
         hash = (hash + prime_modulus - negative) % prime_modulus;
 
         // add right
-        hash = (hash * base) % prime_modulus;
-        hash = (hash + right_byte) % prime_modulus;
+        hash = (hash * base + right_byte) % prime_modulus;
 
         return hash;
 }
