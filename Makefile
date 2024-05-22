@@ -36,7 +36,7 @@ test: test_list test_dict test_rabin_karp
 	@./test_list >> test_results.txt
 	@./test_dict >> test_results.txt
 	@./test_rabin_karp >> test_results.txt
-	@./test_rabin_karp water ../data/tao_te_ching_le_guin.txt >> test_results.txt
+	@./test_rabin_karp water ../data/brothers_karamazov.txt >> test_results.txt
 	@echo "Pass Count:" $$(grep '^PASS:' test_results.txt | wc -l)
 	@echo "Fail Count:" $$(grep '^FAIL:' test_results.txt | wc -l)
 
