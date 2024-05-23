@@ -3,9 +3,10 @@ CFLAGS := -g -O3 -Wall -Wextra -Wno-unused-parameter -Wno-stringop-truncation
 BINDIR := bin
 BUILDDIR := build
 TESTDIR := test
+SRCDIR := src
 
 # Ensure target directories exist
-$(shell mkdir -p $(BINDIR) $(BUILDDIR) $(TESTDIR))
+$(shell mkdir -p $(BINDIR) $(BUILDDIR) $(TESTDIR) $(SRCDIR))
 
 all: test
 
@@ -18,12 +19,12 @@ clean:
 	rm -f $(BUILDDIR)/*.o
 	rm -f $(TESTDIR)/*
 	rm -f dependencies.makefile
-	gcc -M *.c > dependencies.makefile
+	gcc -M $(SRCDIR)/*.c > dependencies.makefile
 
 dep:
-	gcc -M *.c > dependencies.makefile
+	gcc -M $(SRCDIR)/*.c > dependencies.makefile
 
-$(BUILDDIR)/%.o: %.c
+$(BUILDDIR)/%.o: $(SRCDIR)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(BINDIR)/%: $(BUILDDIR)/%.o
@@ -39,11 +40,10 @@ $(BINDIR)/test_dict: $(BUILDDIR)/test_dict.o $(BUILDDIR)/dict.o
 $(BINDIR)/test_rabin_karp: $(BUILDDIR)/test_rabin_karp.o $(BUILDDIR)/rabin_karp.o
 
 test: $(BINDIR)/test_list $(BINDIR)/test_dict $(BINDIR)/test_rabin_karp
-	@rm -f $(BINDIR)/test_results.txt
+	@rm -f $(TESTDIR)/test_results.txt
 	@$(BINDIR)/test_list >> $(TESTDIR)/test_results.txt
 	@$(BINDIR)/test_dict >> $(TESTDIR)/test_results.txt
-	@$(BINDIR)/test_rabin_karp >> $(TESTDIR)/test_results.txt
-	@$(BINDIR)/test_rabin_karp water ../data/brothers_karamazov.txt >> $(TESTDIR)/test_results.txt
+	@$(BINDIR)/test_rabin_karp >> $(TESTDIR)/rabin_karp_test_results.txt
 	@echo "Pass Count:" $$(grep '^PASS:' $(TESTDIR)/test_results.txt | wc -l)
 	@echo "Fail Count:" $$(grep '^FAIL:' $(TESTDIR)/test_results.txt | wc -l)
 
