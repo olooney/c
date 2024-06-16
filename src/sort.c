@@ -2,10 +2,10 @@
 #include <string.h>
 #include <stdlib.h>
 
-int bubble_sort(char** values, size_t length) {
+int brute_sort(char** values, size_t length) {
     int comparison_count = 0;
 
-    for ( size_t i=0; i < length-1; i++ ) {
+    for ( size_t i=0; i+1 < length; i++ ) {
         for ( size_t j=i+1; j < length; j++ ) {
             int comparison = strcmp(values[i], values[j]);
             comparison_count++;
@@ -16,6 +16,35 @@ int bubble_sort(char** values, size_t length) {
             }
         }
     }
+
+    return comparison_count;
+}
+
+int bubble_sort(char** values, size_t length) {
+    int comparison_count = 0;
+    bool swap_performed;
+
+    // Scan through the array swapping any adjacent pair that are out-of-order.
+    // Keep track of whether or not any swaps were performed; if we can get
+    // through the entire array without performing any swaps we can stop as
+    // we have now verified that the array is sorted.
+    do {
+        swap_performed = false;
+
+        for ( size_t i=1; i< length; i++ ) {
+            // compare adjacent elements
+            int comparison = strcmp(values[i-1], values[i]);
+            comparison_count++;
+
+            // swap if out-of-order
+            if ( comparison > 0 ) {
+                char* swap = values[i-1];
+                values[i-1] = values[i];
+                values[i] = swap;
+                swap_performed = true;
+            }
+        }
+    } while ( swap_performed );
 
     return comparison_count;
 }
