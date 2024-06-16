@@ -13,5 +13,4 @@ int merge_sort(char** values, size_t length);
 int quick_sort(char** values, size_t length);
 bool check_sorted(char** values, size_t length);
 
-
 #endif // SORT_H

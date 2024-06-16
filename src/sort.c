@@ -2,6 +2,12 @@
 #include <string.h>
 #include <stdlib.h>
 
+void swap(char** values, size_t i, size_t j) {
+    char* temp_value = values[i];
+    values[i] = values[j];
+    values[j] = temp_value;
+}
+
 int brute_sort(char** values, size_t length) {
     int comparison_count = 0;
 
@@ -10,9 +16,7 @@ int brute_sort(char** values, size_t length) {
             int comparison = strcmp(values[i], values[j]);
             comparison_count++;
             if ( comparison > 0 ) {
-                char* swap = values[i];
-                values[i] = values[j];
-                values[j] = swap;
+                swap(values, i, j);
             }
         }
     }
@@ -38,9 +42,7 @@ int bubble_sort(char** values, size_t length) {
 
             // swap if out-of-order
             if ( comparison > 0 ) {
-                char* swap = values[i-1];
-                values[i-1] = values[i];
-                values[i] = swap;
+                swap(values, i-1, i);
                 swap_performed = true;
             }
         }
@@ -101,8 +103,39 @@ int merge_sort(char** values, size_t length) {
     return comparison_count;
 }
 
+size_t partition(char** values, size_t length, int* comparison_count) {
+    if ( length <= 1 ) return 0;
+
+    size_t pivot_index = rand() % length;
+    char* pivot_value = values[pivot_index];
+
+    swap(values, pivot_index, length-1);
+    size_t current_pivot = 0;
+    for ( size_t i=0; i < length-1; i++ ) {
+        (*comparison_count)++;
+        if ( strcmp(values[i], pivot_value) < 0 ) {
+            swap(values, i, current_pivot);
+            current_pivot++;
+        }
+    }
+    swap(values, current_pivot, length-1);
+    return current_pivot;
+    
+}
+
 int quick_sort(char** values, size_t length) {
-    return 0;
+    if ( length < 2 ) return 0;
+
+    int comparison_count = 0;
+    size_t pivot = partition(values, length, &comparison_count);
+
+    comparison_count += quick_sort(values, pivot);
+
+    if ( pivot + 1 < length ) {
+        comparison_count += quick_sort(values + pivot + 1, length - pivot - 1);
+    }
+    
+    return comparison_count;
 }
 
 
