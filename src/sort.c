@@ -1,6 +1,20 @@
-#include "sort.h"
 #include <string.h>
 #include <stdlib.h>
+
+#include "sort.h"
+#include "skew_heap.h"
+
+bool check_sorted(char** values, size_t length) {
+    if ( length < 2 ) return true;
+
+    for ( size_t i=1; i<length; i++ ) {
+        int comparison = strcmp(values[i-1], values[i]);
+        if ( comparison > 0 ) {
+            return false;
+        }
+    }
+    return true;
+}
 
 void swap(char** values, size_t i, size_t j) {
     char* temp_value = values[i];
@@ -65,9 +79,9 @@ int merge_sort(char** values, size_t length) {
     char** left_half = values;
     char** right_half = values + left_half_length;
 
-    size_t i = 0; // read index for left side
-    size_t j = 0;     // read index for right side
-    size_t k = 0;     // write index in output
+    size_t i = 0;  // read index for left side
+    size_t j = 0;  // read index for right side
+    size_t k = 0;  // write index in output
     while ( i < left_half_length || j < right_half_length ) {
         
         // if one side is empty, take the other. Otherwise,
@@ -139,14 +153,8 @@ int quick_sort(char** values, size_t length) {
 }
 
 
-bool check_sorted(char** values, size_t length) {
-    if ( length < 2 ) return true;
-
-    for ( size_t i=1; i<length; i++ ) {
-        int comparison = strcmp(values[i-1], values[i]);
-        if ( comparison > 0 ) {
-            return false;
-        }
-    }
-    return true;
+char** binary_search(char** values, size_t length, char* key, bool exact) {
+    return NULL;
 }
+
+

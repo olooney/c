@@ -93,7 +93,7 @@ void test_sort(sort_func_t sort_function, const char* function_name, int num_epo
     for ( int epoch=0; epoch<num_epochs; epoch++ ) {
         // generate random strings
         char** many_values = generate_random_strings(length, 8);
-        char* string_buffer= many_values[0];
+        char* string_buffer = many_values[0];
         comparison_count = sort_function(many_values, length);
 
         int verbose = (epoch >= 3 ? 1 : 2);
@@ -109,13 +109,106 @@ void test_sort(sort_func_t sort_function, const char* function_name, int num_epo
     printf("Time spent in %s: %0.3f ms\n\n", function_name, milliseconds_per_epoch);
 }
 
+void test_binary_search() { 
+    char* pets[] = { 
+        "alpaca", "cat", "dog", "fish", "hamster", 
+        "iguana", "monster", "parakeet", "pig", "rock"
+    };
+
+    // exact search, key exists
+    char** dog = binary_search(pets, 10, "dog", true);
+    if ( dog - pets == 2 ) {
+        printf("PASS: exact binary_search() found \"dog\" at position 2.\n");
+    } else {
+        printf("FAIL: exact binary_search() failed to find \"dog\". ");
+        if ( dog == NULL ) {
+            printf("Returned NULL instead.\n");
+        } else {
+            size_t index = dog - pets;
+            printf("Returned index %zu instead.\n", index);
+        }
+    }
+
+    // exact search, key does not exist
+    char** doggo = binary_search(pets, 10, "doggo", true);
+    if ( doggo == NULL ) {
+        printf("PASS: exact binary_search() returned NULL for non-existant key.\n");
+    } else {
+        size_t index = doggo - pets;
+        printf("FAIL: exact binary_search() returned index %zu for non-existant key.\n", index);
+    }
+
+    // non-exact search, key exists
+    char** fish = binary_search(pets, 10, "fish", true);
+    if ( fish - pets == 3 ) {
+        printf("PASS: non-exact binary_search() found \"fish\" at position 3.\n");
+    } else {
+        printf("FAIL: non-exact binary_search() failed to find \"fish\". ");
+        if ( fish == NULL ) {
+            printf("Returned NULL instead.\n");
+        } else {
+            size_t index = fish - pets;
+            printf("Returned index %zu instead.\n", index);
+        }
+    }
+
+    // non-exact search, key does not exists
+    char** elephant = binary_search(pets, 10, "elephant", true);
+    if ( elephant - pets == 3 ) {
+        printf("PASS: non-exact binary_search() suggested inserting \"elephant\" at position 3.\n");
+    } else {
+        printf("FAIL: non-exact binary_search() failed to find insert position for \"elephant\". ");
+        if ( elephant == NULL ) {
+            printf("Returned NULL instead.\n");
+        } else {
+            size_t index = elephant - pets;
+            printf("Returned index %zu instead.\n", index);
+        }
+    }
+
+    // generate random data
+    size_t length = 5;
+    char** many_values = generate_random_strings(length, 8);
+    char* string_buffer = many_values[0];
+    quick_sort(many_values, length);
+
+    char key[9];
+    int failures = 0;
+    for ( size_t i=0; i<length; i++ ) {
+        char** key_pointer = many_values + i;
+        strcpy(key, *key_pointer);
+        char** found = binary_search(many_values, length, key, true);
+        if ( found != key_pointer ) {
+            size_t true_index = key_pointer - many_values;
+            printf("FAIL: exact binary_search() failed to find %s at index %zu. ", key, true_index);
+            failures++;
+            if ( found == NULL ) {
+                printf("Returned NULL instead.\n");
+            } else {
+                size_t found_index = found - many_values;
+                printf("Returned index %zu instead.\n", found_index);
+            }
+        }
+    }
+    if ( failures == 0 ) {
+        printf("PASS: exact binary_search() found correct index for all %zu values.\n");
+    }
+
+    // clean up random strings.
+    free(string_buffer);
+    free(many_values);
+}
+
 
 int main(int argc, char** argv) {
     srand(time(NULL));
+    /*
 	test_sort(brute_sort, "brute_sort()", 8);
 	test_sort(bubble_sort, "bubble_sort()", 8);
 	test_sort(merge_sort, "merge_sort()", 1024);
 	test_sort(quick_sort, "quick_sort()", 1024);
+    */
+    test_binary_search();
 
     return 0;
 }

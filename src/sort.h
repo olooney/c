@@ -11,6 +11,8 @@ int brute_sort(char** values, size_t length);
 int bubble_sort(char** values, size_t length);
 int merge_sort(char** values, size_t length);
 int quick_sort(char** values, size_t length);
+
 bool check_sorted(char** values, size_t length);
+char** binary_search(char** values, size_t length, char* key, bool exact);
 
 #endif // SORT_H
