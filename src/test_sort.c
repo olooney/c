@@ -61,6 +61,7 @@ void assert_sorted(
 }
 
 void test_sort(sort_func_t sort_function, const char* function_name, int num_epochs) {
+    printf("TEST: %s\n", function_name);
 
     int comparison_count;
     // test on an empty array.
@@ -110,6 +111,26 @@ void test_sort(sort_func_t sort_function, const char* function_name, int num_epo
 }
 
 void test_binary_search() { 
+    printf("TEST: binary_search()\n");
+
+    char* empty_values[] = {};
+    char** found = binary_search(empty_values, 0, "key", true);
+    if ( found == NULL ) {
+        printf("PASS: exact binary_search() returned NULL for non-existant key \"key\" in empty array.\n");
+    } else {
+        size_t index = found - empty_values;
+        printf("FAIL: exact binary_search() returned index %zu for key \"key\" in empty array.\n", index);
+    }
+
+    found = binary_search(empty_values, 0, "key", false);
+    if ( found == NULL ) {
+        printf("PASS: non-exact binary_search() returned NULL for non-existant key \"key\" in empty array.\n");
+    } else {
+        size_t index = found - empty_values;
+        printf("FAIL: non-exact binary_search() returned index %zu for key \"key\" in empty array.\n", index);
+    }
+
+
     char* pets[] = { 
         "alpaca", "cat", "dog", "fish", "hamster", 
         "iguana", "monster", "parakeet", "pig", "rock"
@@ -132,14 +153,32 @@ void test_binary_search() {
     // exact search, key does not exist
     char** doggo = binary_search(pets, 10, "doggo", true);
     if ( doggo == NULL ) {
-        printf("PASS: exact binary_search() returned NULL for non-existant key.\n");
+        printf("PASS: exact binary_search() returned NULL for non-existant key \"doggo\".\n");
     } else {
         size_t index = doggo - pets;
-        printf("FAIL: exact binary_search() returned index %zu for non-existant key.\n", index);
+        printf("FAIL: exact binary_search() returned index %zu for non-existant key \"doggo\".\n", index);
+    }
+
+    // exact search, key does not exist, after last element
+    char** zebra = binary_search(pets, 10, "zebra", true);
+    if ( zebra == NULL ) {
+        printf("PASS: exact binary_search() returned NULL for non-existant key \"zebra\".\n");
+    } else {
+        size_t index = zebra - pets;
+        printf("FAIL: exact binary_search() returned index %zu for non-existant key \"zebra\".\n", index);
+    }
+
+    // exact search, key does not exist, before first element
+    char** aardvark = binary_search(pets, 10, "aardvark", true);
+    if ( aardvark == NULL ) {
+        printf("PASS: exact binary_search() returned NULL for non-existant key \"aardvark\".\n");
+    } else {
+        size_t index = aardvark - pets;
+        printf("FAIL: exact binary_search() returned index %zu for non-existant key \"aardvark\".\n", index);
     }
 
     // non-exact search, key exists
-    char** fish = binary_search(pets, 10, "fish", true);
+    char** fish = binary_search(pets, 10, "fish", false);
     if ( fish - pets == 3 ) {
         printf("PASS: non-exact binary_search() found \"fish\" at position 3.\n");
     } else {
@@ -152,8 +191,8 @@ void test_binary_search() {
         }
     }
 
-    // non-exact search, key does not exists
-    char** elephant = binary_search(pets, 10, "elephant", true);
+    // non-exact search, key does not exists, insert after
+    char** elephant = binary_search(pets, 10, "elephant", false);
     if ( elephant - pets == 3 ) {
         printf("PASS: non-exact binary_search() suggested inserting \"elephant\" at position 3.\n");
     } else {
@@ -166,8 +205,36 @@ void test_binary_search() {
         }
     }
 
+    // non-exact search, key does not exists, insert before
+    aardvark = binary_search(pets, 10, "aardvark", false);
+    if ( aardvark - pets == 0 ) {
+        printf("PASS: non-exact binary_search() suggested inserting \"aardvark\" at position 0.\n");
+    } else {
+        printf("FAIL: non-exact binary_search() failed to find insert position for \"aardvark\". ");
+        if ( aardvark == NULL ) {
+            printf("Returned NULL instead.\n");
+        } else {
+            size_t index = aardvark - pets;
+            printf("Returned index %zu instead.\n", index);
+        }
+    }
+
+    // non-exact search, key does not exists, insert at end
+    zebra = binary_search(pets, 10, "zebra", false);
+    if ( zebra - pets == 10 ) {
+        printf("PASS: non-exact binary_search() suggested inserting \"zebra\" at position 10.\n");
+    } else {
+        printf("FAIL: non-exact binary_search() failed to find insert position for \"zebra\". ");
+        if ( zebra == NULL ) {
+            printf("Returned NULL instead.\n");
+        } else {
+            size_t index = zebra - pets;
+            printf("Returned index %zu instead.\n", index);
+        }
+    }
+
     // generate random data
-    size_t length = 5;
+    size_t length = 1024;
     char** many_values = generate_random_strings(length, 8);
     char* string_buffer = many_values[0];
     quick_sort(many_values, length);
@@ -191,7 +258,7 @@ void test_binary_search() {
         }
     }
     if ( failures == 0 ) {
-        printf("PASS: exact binary_search() found correct index for all %zu values.\n");
+        printf("PASS: exact binary_search() found correct index for all %zu values.\n", length);
     }
 
     // clean up random strings.
@@ -202,12 +269,10 @@ void test_binary_search() {
 
 int main(int argc, char** argv) {
     srand(time(NULL));
-    /*
 	test_sort(brute_sort, "brute_sort()", 8);
 	test_sort(bubble_sort, "bubble_sort()", 8);
 	test_sort(merge_sort, "merge_sort()", 1024);
 	test_sort(quick_sort, "quick_sort()", 1024);
-    */
     test_binary_search();
 
     return 0;

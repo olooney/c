@@ -154,6 +154,43 @@ int quick_sort(char** values, size_t length) {
 
 
 char** binary_search(char** values, size_t length, char* key, bool exact) {
+
+    if ( length == 0 ) return NULL;
+
+    size_t left = 0;
+    size_t right = length;
+
+    do {
+        size_t center = (left + right)/2;
+        char* probe = *(values + center);
+        int comparison = strcmp(key, probe);
+        if ( comparison == 0 ) {
+            return values + center;
+        } else if ( comparison < 0 ) { 
+            right = center;
+        } else {
+            left = center + 1;
+        }
+
+    } while ( right > left );
+
+    if ( !exact ) {
+        // must insert at end of array
+        if ( left == length ) {
+            return values + left;
+        }
+
+        // decide to insert to the left or right
+        char* probe = *(values + left);
+        int comparison = strcmp(key, probe);
+        if ( comparison < 0 ) {
+            return values + left;
+        } else {
+            return values + left + 1;
+        }
+
+    }
+
     return NULL;
 }
 
