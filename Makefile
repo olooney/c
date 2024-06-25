@@ -37,6 +37,7 @@ $(BINDIR)/main: $(BUILDDIR)/main.o $(BUILDDIR)/rabin_karp.o
 
 $(BINDIR)/test_list: $(BUILDDIR)/test_list.o $(BUILDDIR)/list.o
 $(BINDIR)/test_dict: $(BUILDDIR)/test_dict.o $(BUILDDIR)/dict.o
+$(BINDIR)/test_token: $(BUILDDIR)/test_token.o $(BUILDDIR)/token.o
 $(BINDIR)/test_skew_heap: $(BUILDDIR)/test_skew_heap.o $(BUILDDIR)/skew_heap.o
 $(BINDIR)/test_rabin_karp: $(BUILDDIR)/test_rabin_karp.o $(BUILDDIR)/rabin_karp.o
 
